@@ -283,7 +283,7 @@ class Cli {
 
   // method to find a vehicle to tow
   // TODO: add a parameter to accept a truck object
-  findVehicleToTow(): void {
+  findVehicleToTow(towingTruck:any): void {
     inquirer
       .prompt([
         {
@@ -299,6 +299,15 @@ class Cli {
         },
       ])
       .then((answers) => {
+        const vehicleToTow = answers.vehicleToTow
+        if (vehicleToTow instanceof Truck) {
+          console.log("can't tow a truck");
+          this.performActions()
+          
+        } else {
+          towingTruck.tow(vehicleToTow)
+          this.performActions()
+        }
         // TODO: check if the selected vehicle is the truck
         // TODO: if it is, log that the truck cannot tow itself then perform actions on the truck to allow the user to select another action
         // TODO: if it is not, tow the selected vehicle then perform actions on the truck to allow the user to select another action
@@ -316,6 +325,8 @@ class Cli {
           // TODO: add options to tow and wheelie
           choices: [
             'Print details',
+            'tow',
+            'wheelie',
             'Start vehicle',
             'Accelerate 5 MPH',
             'Decelerate 5 MPH',
@@ -337,7 +348,25 @@ class Cli {
               this.vehicles[i].printDetails();
             }
           }
-        } else if (answers.action === 'Start vehicle') {
+        } else if (answers.action === 'tow'){
+          const vehicle = this.vehicles.find((element)=>element.vin === this.selectedVehicleVin)
+          if (vehicle instanceof Truck) {
+            this.findVehicleToTow (vehicle)
+            return
+          } else {
+            console.log("Can't tow unless vehicle is a truck");
+            
+          }
+        } else if (answers.action === 'wheelie'){
+         const vehicle = this.vehicles.find((element)=>element.vin === this.selectedVehicleVin)
+         if (vehicle instanceof Motorbike) {
+          vehicle.wheelie()
+         } else {
+          console.log("can't do a wheelie unless it's a motorbike");
+          
+         } 
+        }
+         else if (answers.action === 'Start vehicle') {
           // find the selected vehicle and start it
           for (let i = 0; i < this.vehicles.length; i++) {
             if (this.vehicles[i].vin === this.selectedVehicleVin) {
